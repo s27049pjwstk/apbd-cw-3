@@ -4,18 +4,28 @@ namespace LegacyApp
 {
     public class UserService
     {
+        /*
+        Note
+        UI - html, console
+        BL - logika biznesowa
+        Infrastruktura - I/O        
+         */
+
         public bool AddUser(string firstName, string lastName, string email, DateTime dateOfBirth, int clientId)
         {
+            // Logika bizensowa - walidacja
             if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
             {
                 return false;
             }
 
+            // Logika biznesowa - walidacja
             if (!email.Contains("@") && !email.Contains("."))
             {
                 return false;
             }
 
+            // Logika biznesowa
             var now = DateTime.Now;
             int age = now.Year - dateOfBirth.Year;
             if (now.Month < dateOfBirth.Month || (now.Month == dateOfBirth.Month && now.Day < dateOfBirth.Day)) age--;
@@ -25,9 +35,10 @@ namespace LegacyApp
                 return false;
             }
 
+            // Infrastruktura
             var clientRepository = new ClientRepository();
             var client = clientRepository.GetById(clientId);
-
+            
             var user = new User
             {
                 Client = client,
@@ -37,6 +48,8 @@ namespace LegacyApp
                 LastName = lastName
             };
 
+            
+            // Logika biznesowa + Infrastruktura
             if (client.Type == "VeryImportantClient")
             {
                 user.HasCreditLimit = false;
@@ -60,6 +73,7 @@ namespace LegacyApp
                 }
             }
 
+            // Logika biznesowa
             if (user.HasCreditLimit && user.CreditLimit < 500)
             {
                 return false;
