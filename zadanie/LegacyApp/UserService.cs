@@ -1,9 +1,13 @@
 ﻿using System;
 
-namespace LegacyApp
-{
-    public class UserService
-    {
+namespace LegacyApp {
+    public interface ICreditService {
+    }
+
+    public interface IClientRepository {
+    }
+
+    public class UserService {
         /*
         Note
         UI - html, console
@@ -11,17 +15,22 @@ namespace LegacyApp
         Infrastruktura - I/O        
          */
 
-        public bool AddUser(string firstName, string lastName, string email, DateTime dateOfBirth, int clientId)
-        {
+        private IClientRepository _clientRepository;
+        private ICreditService _creditService;
+
+        public UserService(IClientRepository clientRepository, ICreditService creditService) {
+            _clientRepository = clientRepository;
+            _creditService = creditService;
+        }
+
+        public bool AddUser(string firstName, string lastName, string email, DateTime dateOfBirth, int clientId) {
             // Logika bizensowa - walidacja
-            if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
-            {
+            if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName)) {
                 return false;
             }
 
             // Logika biznesowa - walidacja
-            if (!email.Contains("@") && !email.Contains("."))
-            {
+            if (!email.Contains("@") && !email.Contains(".")) {
                 return false;
             }
 
@@ -30,17 +39,14 @@ namespace LegacyApp
             int age = now.Year - dateOfBirth.Year;
             if (now.Month < dateOfBirth.Month || (now.Month == dateOfBirth.Month && now.Day < dateOfBirth.Day)) age--;
 
-            if (age < 21)
-            {
+            if (age < 21) {
                 return false;
             }
 
             // Infrastruktura
-            var clientRepository = new ClientRepository();
-            var client = clientRepository.GetById(clientId);
-            
-            var user = new User
-            {
+            var client = _clientRepository.GetById(clientId);
+
+            var user = new User {
                 Client = client,
                 DateOfBirth = dateOfBirth,
                 EmailAddress = email,
@@ -48,34 +54,28 @@ namespace LegacyApp
                 LastName = lastName
             };
 
-            
+
             // Logika biznesowa + Infrastruktura
-            if (client.Type == "VeryImportantClient")
-            {
+            if (client.Type == "VeryImportantClient") {
                 user.HasCreditLimit = false;
             }
-            else if (client.Type == "ImportantClient")
-            {
-                using (var userCreditService = new UserCreditService())
-                {
+            else if (client.Type == "ImportantClient") {
+                using (var userCreditService = new UserCreditService()) {
                     int creditLimit = userCreditService.GetCreditLimit(user.LastName, user.DateOfBirth);
                     creditLimit = creditLimit * 2;
                     user.CreditLimit = creditLimit;
                 }
             }
-            else
-            {
+            else {
                 user.HasCreditLimit = true;
-                using (var userCreditService = new UserCreditService())
-                {
+                using (var userCreditService = new UserCreditService()) {
                     int creditLimit = userCreditService.GetCreditLimit(user.LastName, user.DateOfBirth);
                     user.CreditLimit = creditLimit;
                 }
             }
 
             // Logika biznesowa
-            if (user.HasCreditLimit && user.CreditLimit < 500)
-            {
+            if (user.HasCreditLimit && user.CreditLimit < 500) {
                 return false;
             }
 
