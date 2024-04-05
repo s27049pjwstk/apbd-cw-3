@@ -20,6 +20,7 @@ namespace LegacyApp {
         private IClientRepository _clientRepository;
         private ICreditService _creditService;
 
+
         public UserService() {
             _clientRepository = new ClientRepository();
             _creditService = new UserCreditService();
@@ -44,9 +45,8 @@ namespace LegacyApp {
             int age = now.Year - dateOfBirth.Year;
             if (now.Month < dateOfBirth.Month || (now.Month == dateOfBirth.Month && now.Day < dateOfBirth.Day)) age--;
 
-            if (age < 21) {
+            if (age < 21)
                 return false;
-            }
 
             // Infrastruktura
             var client = _clientRepository.GetById(clientId);
@@ -63,23 +63,14 @@ namespace LegacyApp {
             // Logika biznesowa + Infrastruktura
             if (client.Type == "VeryImportantClient") {
                 user.HasCreditLimit = false;
-            }
-            else if (client.Type == "ImportantClient") {
+            } else if (client.Type == "ImportantClient") {
                 int creditLimit = _creditService.GetCreditLimit(user.LastName, user.DateOfBirth);
-                // using (var userCreditService = new UserCreditService()) {
-                //     int creditLimit = userCreditService.GetCreditLimit(user.LastName, user.DateOfBirth);
                 creditLimit = creditLimit * 2;
                 user.CreditLimit = creditLimit;
-            }
-            else {
+            } else {
                 user.HasCreditLimit = true;
                 int creditLimit = _creditService.GetCreditLimit(user.LastName, user.DateOfBirth);
                 user.CreditLimit = creditLimit;
-
-                // using (var userCreditService = new UserCreditService()) {
-                //     int creditLimit = userCreditService.GetCreditLimit(user.LastName, user.DateOfBirth);
-                //     user.CreditLimit = creditLimit;
-                // }
             }
 
             // Logika biznesowa
