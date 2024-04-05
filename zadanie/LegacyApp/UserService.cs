@@ -32,14 +32,12 @@ namespace LegacyApp {
 
         public bool AddUser(string firstName, string lastName, string email, DateTime dateOfBirth, int clientId) {
             // Logika bizensowa - walidacja
-            if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName)) {
+            if (string.IsNullOrEmpty(firstName) || string.IsNullOrEmpty(lastName))
                 return false;
-            }
 
             // Logika biznesowa - walidacja
-            if (!email.Contains("@") && !email.Contains(".")) {
+            if (!email.Contains("@") && !email.Contains("."))
                 return false;
-            }
 
             // Logika biznesowa
             var now = DateTime.Now;
