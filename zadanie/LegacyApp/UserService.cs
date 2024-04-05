@@ -2,6 +2,7 @@
 
 namespace LegacyApp {
     public interface ICreditService {
+        int GetCreditLimit(string userLastName, DateTime userDateOfBirth);
     }
 
     public interface IClientRepository {
@@ -13,11 +14,16 @@ namespace LegacyApp {
         Note
         UI - html, console
         BL - logika biznesowa
-        Infrastruktura - I/O        
+        Infrastruktura - I/O
          */
 
         private IClientRepository _clientRepository;
         private ICreditService _creditService;
+
+        public UserService() {
+            _clientRepository = new ClientRepository();
+            _creditService = new UserCreditService();
+        }
 
         public UserService(IClientRepository clientRepository, ICreditService creditService) {
             _clientRepository = clientRepository;
@@ -61,24 +67,26 @@ namespace LegacyApp {
                 user.HasCreditLimit = false;
             }
             else if (client.Type == "ImportantClient") {
-                using (var userCreditService = new UserCreditService()) {
-                    int creditLimit = userCreditService.GetCreditLimit(user.LastName, user.DateOfBirth);
-                    creditLimit = creditLimit * 2;
-                    user.CreditLimit = creditLimit;
-                }
+                int creditLimit = _creditService.GetCreditLimit(user.LastName, user.DateOfBirth);
+                // using (var userCreditService = new UserCreditService()) {
+                //     int creditLimit = userCreditService.GetCreditLimit(user.LastName, user.DateOfBirth);
+                creditLimit = creditLimit * 2;
+                user.CreditLimit = creditLimit;
             }
             else {
                 user.HasCreditLimit = true;
-                using (var userCreditService = new UserCreditService()) {
-                    int creditLimit = userCreditService.GetCreditLimit(user.LastName, user.DateOfBirth);
-                    user.CreditLimit = creditLimit;
-                }
+                int creditLimit = _creditService.GetCreditLimit(user.LastName, user.DateOfBirth);
+                user.CreditLimit = creditLimit;
+
+                // using (var userCreditService = new UserCreditService()) {
+                //     int creditLimit = userCreditService.GetCreditLimit(user.LastName, user.DateOfBirth);
+                //     user.CreditLimit = creditLimit;
+                // }
             }
 
             // Logika biznesowa
-            if (user.HasCreditLimit && user.CreditLimit < 500) {
+            if (user.HasCreditLimit && user.CreditLimit < 500)
                 return false;
-            }
 
             UserDataAccess.AddUser(user);
             return true;
