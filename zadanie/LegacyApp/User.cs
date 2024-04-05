@@ -3,9 +3,20 @@
 namespace LegacyApp {
     public class User {
         public object Client { get; internal set; }
-        public DateTime DateOfBirth { get; internal set; }
+
+        private DateTime _dateOfBirth;
+
+        public DateTime DateOfBirth {
+            get => _dateOfBirth;
+            internal set {
+                if (value > DateTime.Now.AddYears(-21))
+                    throw new ArgumentException("Age too small!");
+                _dateOfBirth = value;
+            }
+        }
 
         private string _emailAddress;
+
 
         public string EmailAddress {
             get => _emailAddress;
@@ -18,6 +29,7 @@ namespace LegacyApp {
 
         private string _firstName;
 
+
         public string FirstName {
             get => _firstName;
             internal set {
@@ -28,6 +40,7 @@ namespace LegacyApp {
         }
 
         private string _lastName;
+
         public string LastName {
             get => _lastName;
             internal set {
