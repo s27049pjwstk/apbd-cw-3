@@ -4,8 +4,6 @@ namespace LegacyApp {
     public class User {
         public object Client { get; internal set; }
 
-        private DateTime _dateOfBirth;
-
         public DateTime DateOfBirth {
             get => _dateOfBirth;
             internal set {
@@ -15,8 +13,7 @@ namespace LegacyApp {
             }
         }
 
-        private string _emailAddress;
-
+        private DateTime _dateOfBirth;
 
         public string EmailAddress {
             get => _emailAddress;
@@ -27,8 +24,7 @@ namespace LegacyApp {
             }
         }
 
-        private string _firstName;
-
+        private string _emailAddress;
 
         public string FirstName {
             get => _firstName;
@@ -39,7 +35,8 @@ namespace LegacyApp {
             }
         }
 
-        private string _lastName;
+        private string _firstName;
+
 
         public string LastName {
             get => _lastName;
@@ -50,7 +47,19 @@ namespace LegacyApp {
             }
         }
 
+        private string _lastName;
+
         public bool HasCreditLimit { get; internal set; }
-        public int CreditLimit { get; internal set; }
+
+        public int CreditLimit {
+            get => _creditLimit;
+            internal set {
+                if (HasCreditLimit && value < 500)
+                    throw new ArgumentException("CreditLimit is too small!");
+                _creditLimit = value;
+            } 
+        }
+
+        private int _creditLimit;
     }
 }
